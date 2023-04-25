@@ -1,0 +1,103 @@
+﻿@using BusinessLayer;
+@using ServiceLayer
+
+@page "/CreateTeam"
+
+<center>
+    <h3>CreateTeam</h3>
+
+
+    <form>
+        <label>Team name: </label>
+        <input type="text" @bind-value="@team.TeamName" />
+        <br /><br />
+        <label>Project name:</label>
+        <input type="text" @bind-value="@team.ProjectName" />
+        <br />
+        <br />
+        <button type="submit" @onclick="@TeamSubmit">Create Team</button>
+    </form>
+</center>
+<br />
+<br />
+<center>
+    <h4 style="color: @CurrentColor">@info</h4>
+    <table border="1" width="80%">
+        <tr>
+            <td>Team ID</td>
+            <td>Team Name</td>
+            <td>Project Name</td>
+            <td>Workers Count</td>
+            <td>Leader id</td>
+            <td>Delete team</td>
+            <td>Update Team</td>
+        </tr>
+        @foreach (var teamDB in tm.ReadAll())
+        {
+            <tr>
+                <td>@teamDB.ID</td>
+                <td><input type="text" @bind-value="@teamDB.TeamName"></td>
+                <td><input type="text" @bind-value="@teamDB.ProjectName"></td>
+                <td>
+                    @if (@teamDB.Workers != null)
+                    {
+                        @teamDB.Workers.Count
+                    }
+                    @if (teamDB.Workers == null)
+                    {
+                        int a = 0;
+                        @a
+                    }
+                </td>
+                <td>
+                    @if (@teamDB.TeamLeader != null)
+                    {
+                        @teamDB.TeamLeader.Id
+                    }
+                    @if (teamDB.TeamLeader == null)
+                    {
+                        int a = 0;
+                        @a
+                    }
+                </td>
+                <td><button type="submit" id="@teamDB.ID" @onclick="@(() => DeleteTeam(teamDB.ID))">Delete</button></td>
+                
+                <td><button type="submit" id="@teamDB.ID" @onclick="@(() => UpdateTeam(teamDB))">Update</button> </td>
+
+            </tr>
+
+        }
+    </table>
+</center>
+
+@code {
+    private string CurrentColor { get; set; } = "black";
+    private string info = "";
+
+    TeamManager tm = new TeamManager(DBContextManager.CreateContext());
+    Team team = new Team(string.Empty, string.Empty);
+    private void TeamSubmit()
+    {
+        tm.Create(team);
+    }
+    private void DeleteTeam(int id)
+    {
+        tm.Delete(id);
+        ChangeColor();
+        info = $"Team with id: {id} DELETED!";
+
+    }
+    private void UpdateTeam(Team teamdb)
+    {
+        tm.Update(teamdb);
+        ChangeColor();
+        info = $"Team with id: {teamdb.ID} UPDATED!";
+    }
+
+    private void ChangeColor()
+    {
+        var random = new Random();
+        var color = String.Format("#{0:X6}", random.Next(0x1000000)); // Generate a random 6-digit hex color code.
+        CurrentColor = color;
+    }
+}

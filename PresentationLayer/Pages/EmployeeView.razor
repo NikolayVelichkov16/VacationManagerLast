@@ -1,0 +1,35 @@
+﻿@inject NavigationManager _nav
+@page "/EmployeeView"
+<link rel="stylesheet" type="text/css" href="css/CardCSS.css" />
+
+<center><h1>Menu</h1></center>
+
+<div class="card-container">
+    <div class="card">
+        <img src="Images/vacation.jpg" style="width:100%">
+        <h2>Take day off</h2>
+        <p>Paid, unpaid or sick leave.</p>
+        <center><button @onclick="@(()=>_nav.NavigateTo("/FormForHoliday"))">Fill the form</button></center>
+    </div>
+    <div class="card">
+        <img src="Images/team.jpg" style="width:100%">
+        <h2>View Team</h2>
+        <p>View team members and projects</p>
+        <center><button @onclick="@(()=>_nav.NavigateTo("/EmployeeTeam"))">View team</button></center>
+    </div>
+    <div class="card">
+        <img src="Images/team.jpg" style="width:100%">
+        <h2>Card Title</h2>
+        <p>Card content goes here.</p>
+        <center><button @onclick="@(()=>_nav.NavigateTo("/FormForHoliday"))">Fill the form</button></center>
+    </div>
+</div>
+
+
+
+
+
+
+@code {
+ 
+}

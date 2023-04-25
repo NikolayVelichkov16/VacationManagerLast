@@ -1,0 +1,42 @@
+﻿@inject NavigationManager _nav
+@page "/EmployerView"
+
+<link rel="stylesheet" type="text/css" href="css/CardCSS.css" />
+
+<title>Employer view</title>
+<center><h1>Menu</h1></center>
+
+<div class="card-container">
+    <div class="card">
+        <img src="Images/vacation.jpg" style="width:100%">
+        <h2>Applications for leave</h2>
+        <p>Paid, unpaid or sick leave.</p>
+        <center><button @onclick="@(()=>_nav.NavigateTo("/ApplicationsView"))">View applications</button></center>
+    </div>
+    <div class="card">
+        <img src="Images/team.jpg" style="width:100%">
+        <h2>View Teams</h2>
+        <p>View and conrtol teams, members and projects</p>
+        <center><button @onclick="@(()=>_nav.NavigateTo("/EmployerTeam"))">View teams</button></center>
+    </div>
+    <div class="card">
+        <img src="Images/team.jpg" style="width:100%">
+        <h2>Manage teams</h2>
+        <p>You can Create,Uupdate, Delete or view all teams!</p>
+        <center><button @onclick="@(()=>_nav.NavigateTo("/CreateTeam"))">Manage teams</button></center>
+    </div>
+
+    <div class="card">
+        <img src="Images/team.jpg" style="width:100%">
+        <h2>Manage teams</h2>
+        <p>You can Create,Uupdate, Delete or view all workers!</p>
+        <center><button @onclick="@(()=>_nav.NavigateTo("/ManageWorker"))">Manage Workers</button></center>
+    </div>
+  
+</div>
+
+
+
+@code {
+
+        }

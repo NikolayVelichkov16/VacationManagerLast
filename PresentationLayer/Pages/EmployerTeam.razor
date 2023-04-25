@@ -1,0 +1,67 @@
+﻿@page "/EmployerTeam"
+@using BusinessLayer;
+@using ServiceLayer;
+
+<center>
+    <form width="70%">
+
+        @foreach (var team in teamManager.ReadAll())
+        {
+
+            <table width="100%" border="1">
+                <tr>
+                    <td colspan="5"> <center><h3>@team.TeamName</h3></center></td>
+                </tr>
+                @if (team.TeamLeader != null)
+                {
+                    <tr>
+                        <td>@team.TeamLeader.Id</td>
+                        <td>@team.TeamLeader.Name</td>
+                        <td>@team.TeamLeader.LastName</td>
+                        <td>@team.TeamLeader.Role</td>
+                        <td><button type="submit" value="@team.TeamLeader.Id" @onclick="(() => SackLeader(team.TeamLeader.Id))">Sack</button></td>
+                    </tr>
+                }
+
+                @foreach (var worker in team.Workers)
+                {
+                    <tr>
+                        <td>@worker.Id</td>
+                        <td>@worker.Name</td>
+                        <td>@worker.LastName</td>
+                        <td>@worker.Role</td>
+                        <td><button type="submit" value="@worker.Id" @onclick="(() => SackWorker(worker.Id))">Sack</button></td>
+                    </tr>
+                }
+            </table>
+            <br />
+
+            <br />
+        }
+
+    </form>
+
+</center>
+@code {
+    TeamManager teamManager = new TeamManager(DBContextManager.CreateContext());
+
+    protected override void OnInitialized()
+    {
+
+    }
+    private void SackWorker(string id)
+    {
+        WorkerManager wm = new WorkerManager(DBContextManager.CreateContext());
+        wm.Delete(id);
+        StateHasChanged();
+
+    }
+
+    private void SackLeader(string id)
+    {
+        TeamLeaderManager tm = new TeamLeaderManager(DBContextManager.CreateContext());
+        tm.Delete(id);
+        StateHasChanged();
+
+    }
+}

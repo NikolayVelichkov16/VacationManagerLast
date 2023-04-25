@@ -1,0 +1,140 @@
+﻿@using SixLabors.ImageSharp;
+@using BusinessLayer;
+@using ServiceLayer;
+@using System.IO;
+@using System.Net.Mime;
+@using SixLabors.ImageSharp.Formats.Jpeg;
+@using SixLabors.ImageSharp.PixelFormats;
+@using static System.Net.Mime.MediaTypeNames;
+@using static SixLabors.ImageSharp.Configuration;
+@inject NavigationManager NavManager
+
+@page "/ApplicationsView"
+
+
+@inject IJSRuntime JSRuntime;
+
+
+<h3>ApplicationsView</h3>
+
+<center>
+    <table width="90%">
+        <tr>
+            <td>Employee</td>
+            <td>Team</td>
+            <td>From date</td>
+            <td>To date</td>
+            <td>Date sent</td>
+            <td>Type</td>
+            <td>Image</td>
+            <td>Pending: </td>
+            <td>Allow / Reject</td>
+        </tr>
+        @foreach (var item in vacList)
+        {
+            <tr>
+                <td>Employee name</td>
+                <td>Team</td>
+                <td>@item.FromDate.ToShortDateString()</td>
+                <td>@item.ToDate.ToShortDateString()</td>
+                <td>@item.CurrentDate.ToShortDateString()</td>
+                <td>@typeIntToString(@item.Type)</td>
+                <td>
+                    @if (item.ImageOfDoc != null)
+                    {
+                        <button type="button" id="@item.Id" @onclick="@(() => ViewImage(item.Id))">View Image</button>
+                    }
+                </td>
+                <td>@item.Pending</td>
+                <td>
+                    @if (item.Pending == true)
+                    {
+                        <button type="button" id="@item.Id" @onclick="@(() => AllowLeave(item.Id))">Allow</button>
+                        <button type="button" id="@item.Id" @onclick="@(() => RejectLeave(item.Id))">Disallow</button>
+                    }
+                    @if (item.Pending == false)
+                    {
+                        if (item.IsAccepted == true)
+                        {
+                            <p>Accepted</p>
+                        }
+                        if (item.IsAccepted == false)
+                        {
+                            <p>Rejected</p>
+                        }
+                    }
+
+
+                </td>
+                <td> <button type="button" id="@item.Id" @onclick="@(() => DeleteLeave(item.Id))">Delete</button></td>
+            </tr>
+        }
+
+    </table>
+  
+
+</center>
+@code {
+    VacationDocManager vacDoc = new VacationDocManager(DBContextManager.CreateContext());
+    private List<VacationDoc> vacList;
+
+    protected override void OnInitialized()
+    {
+        vacList = vacDoc.ReadAll().OrderBy(x => x.Pending == false).ThenByDescending(x => x.CurrentDate).ToList();
+    }
+    private string typeIntToString(int num)
+    {
+        if (num == 1)
+        {
+            return "Unpaid Leave";
+        }
+        else if (num == 2)
+        {
+            return "Paid Leave";
+        }
+        else if (num == 3)
+        {
+            return "Sick Leave";
+        }
+        else
+        {
+            return "Error!";
+        }
+    }
+
+
+    private async Task ViewImage(int id)
+    {
+        VacationDoc docDB = vacDoc.Read(id);
+        if (docDB.ImageOfDoc != null)
+        {
+            string imageDataURL = $"data:image/jpeg;base64,{Convert.ToBase64String(docDB.ImageOfDoc)}";
+            await JSRuntime.InvokeVoidAsync("displayImage", imageDataURL);
+        }
+    }
+
+
+
+
+    private void AllowLeave(int id)
+    {
+        VacationDoc docDB = vacDoc.Read(id);
+        docDB.Pending = false;
+        docDB.IsAccepted = true;
+        vacDoc.Update(docDB);
+    }
+    private void RejectLeave(int id)
+    {
+        VacationDoc docDB = vacDoc.Read(id);
+        docDB.Pending = false;
+        docDB.IsAccepted = false;
+        vacDoc.Update(docDB);
+    }
+
+    private void DeleteLeave(int id)
+    {
+        vacDoc.Delete(id);
+
+        OnInitialized();
+    }
+}

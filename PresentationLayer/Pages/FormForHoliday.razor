@@ -1,0 +1,163 @@
+﻿@*@page "/FormForHoliday"
+@using BusinessLayer;
+@using ServiceLayer;
+<center><h3>Form for applying for holiday </h3></center>
+@inject NavigationManager NavManager
+<center>
+    <form>
+        <h2>Form for Holiday</h2>
+        <input disabled placeholder="User name"/>
+        
+        <br />
+        <br />
+        <p>From:   <input type="date" @bind-value="@dt" required/></p>
+        <p>To:   <input type="date" @bind-value="@df" required/></p>
+
+        <label><input type="radio" value="Unpaid leave" @onclick="@Hide1" name="group" checked/> Unpaid leave</label>
+        <br />
+        <label><input type="radio" value="Paid leave" @onclick="@Hide2" name="group" /> Paid leave</label>
+        <br />
+        <label><input type="radio" value="Sick leave" @onclick="@Show" name="group" /> Sick leave</label>
+        <br />
+        <br />
+        
+        <input type="file" hidden="@show" accept=".png,.jpg>" @onchange="@OnInputFileChange"/>
+        <br />
+        <br />
+        <button type="button" @onclick="@CreateDoc">Submit</button>
+    </form>
+</center>
+
+@code {
+    DateTime dt = DateTime.Today;
+    DateTime df = DateTime.Today;
+    int type = 0;
+    byte[] image;
+    private bool show { get; set; } = true;
+    private void Show()
+    {
+        show = false;
+        type = 3;
+
+    }
+    private void Hide1()
+    {
+        show = true;
+        type = 1;
+    }
+    private void Hide2()
+    {
+        show = true;
+        type = 2;
+    }
+
+
+    private void CreateDoc()
+    {
+        VacationDoc vd = new VacationDoc(df, dt, DateTime.Today, type);
+        VacationDocManager vacManager = new VacationDocManager(DBContextManager.CreateContext());
+        try
+        {
+            vacManager.Create(vd);
+
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine(ex.Message);
+        }
+
+        Console.WriteLine("Created succsessfully");
+    }
+
+}
+*@
+
+@page "/FormForHoliday"
+@using BusinessLayer;
+@using ServiceLayer;
+@using System.IO;
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject IJSRuntime JSRuntime;
+<center><h3>Form for applying for holiday </h3></center>
+@inject NavigationManager NavManager
+<center>
+    <form>
+        <h2>Form for Holiday</h2>
+        <input disabled placeholder="User name" />
+
+        <br />
+        <br />
+        <p>From:   <input type="date" @bind-value="@df" required /></p>
+        <p>To:   <input type="date" @bind-value="@dt" required /></p>
+
+        <label><input type="radio" value="Unpaid leave" @onclick="@Hide1" name="group" checked /> Unpaid leave</label>
+        <br />
+        <label><input type="radio" value="Paid leave" @onclick="@Hide2" name="group" /> Paid leave</label>
+        <br />
+        <label><input type="radio" value="Sick leave" @onclick="@Show" name="group" /> Sick leave</label>
+        <br />
+        <br />
+
+        <InputFile hidden="@show" accept=".png,.jpg" OnChange="@OnInputFileChange" />
+        <br />
+        <br />
+        <button type="submit" @onclick="@CreateDoc">Submit</button>
+    </form>
+</center>
+@code {
+    DateTime dt = DateTime.Today;
+    DateTime df = DateTime.Today;
+    int type = 1;
+    byte[] image;
+    private bool show { get; set; } = true;
+    private void Show()
+    {
+        show = false;
+        type = 3;
+
+    }
+    private void Hide1()
+    {
+        show = true;
+        type = 1;
+    }
+    private void Hide2()
+    {
+        show = true;
+        type = 2;
+    }
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            using (var ms = new MemoryStream())
+            {
+                await file.OpenReadStream().CopyToAsync(ms);
+                image = ms.ToArray();
+            }
+        }
+    }
+
+
+
+
+    private void CreateDoc()
+    {
+        VacationDoc vd = new VacationDoc(df, dt, DateTime.Today, type);
+        VacationDocManager vacManager = new VacationDocManager(DBContextManager.CreateContext());
+       
+            if (image!=null)
+            {
+                vd.ImageOfDoc = image;
+            }
+            vacManager.Create(vd);
+
+       
+
+    }
+
+}

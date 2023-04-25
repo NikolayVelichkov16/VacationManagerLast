@@ -1,0 +1,302 @@
+﻿@using BusinessLayer;
+@using ServiceLayer
+
+@page "/ManageWorker"
+
+<center>
+    <h3>Manage Workers</h3>
+
+
+    <form>
+        <h3> Create employee</h3>
+        <br /><br />
+        <label>Employee ID: </label>
+        <input type="text" @bind-value="@worker.Id" required />
+        <br /><br />
+        <label>Employee name: </label>
+        <input type="text" @bind-value="@worker.Name" required />
+        <br /><br />
+        <label>Employee surname:</label>
+        <input type="text" @bind-value="@worker.Surname" required />
+        <br /><br />
+        <label>Employee last name:</label>
+        <input type="text" @bind-value="@worker.LastName" required />
+        <br /><br />
+        <label>Employee password: </label>
+        <input type="password" @bind-value="@worker.Password" required />
+        <br /><br />
+        <label>Employee phone:</label>
+        <input type="text" @bind-value="@worker.PhoneNumber" required />
+        <br /><br />
+        <label>Employee email:</label>
+        <input type="text" @bind-value="@worker.Email" required />
+        <br /><br />
+
+        <label><input type="radio" value="Worker" @onclick="@ShowWorkerForm" name="group" checked /> Worker</label>
+
+        <label><input type="radio" value="Paid leave" @onclick="@ShowTeamLeaderForm" name="group" /> Team Leader</label>
+
+        <label><input type="radio" value="Sick leave" @onclick="@ShowCEOForm" name="group" /> CEO</label>
+        <br />
+        <br />
+
+        <!------------------------------------------------------------>
+        <form hidden="@workerFormHidden">
+            <label>Worker team:</label>
+            <select @bind="@teamID" required>
+                <option>Select a team</option>
+                @foreach (var team in teamManager.ReadAll())
+                {
+                    <option value="@team.ID">@team.TeamName</option>
+                }
+            </select>
+            <input type="text" @bind-value="worker.Role" required>
+            <br /><br />
+            <button type="submit" @onclick="@CreateWorker">Create Worker</button>
+        </form>
+
+        <!------------------------------------------------------------>
+        <form hidden="@teamLedFormHidden">
+            <label>Leader team:</label>
+            <select @bind="@teamID" required>
+                <option>Select a team</option>
+                @foreach (var team in teamManager.ReadAll())
+                {
+                    <option value="@team.ID">@team.TeamName</option>
+                }
+            </select>
+            <br /><br />           <input type="text" readonly />Team Leader
+            <br /><br />
+            <button type="submit" @onclick="@CreateTeamLeader">Create Team Leader</button>
+        </form>
+        <!-------------------------------------------------------------->
+        <form hidden="@ceoFormHidden">
+            <label>Company name:</label>
+            <input type="text" @bind-value="companyname" required />
+            <br /><br />           <input type="text" readonly />CEO
+
+            <br /><br />
+            <button type="submit" @onclick="@CreateCEO">Create CEO</button>
+        </form>
+
+    </form>
+
+    <!-- -------------------------------------------------------------------->
+</center>
+<br />
+<br />
+<center>
+    <h4 style="color: @CurrentColor">@info</h4>
+    <table border="1" width="80%">
+        <tr>
+            <td>Emp ID:</td>
+            <td>Emp name: </td>
+            <td>Emp LastName:</td>
+            <td>Emp phone:</td>
+            <td>Emp team:</td>
+            <td>Emp rank:</td>
+            <td></td>
+            <td></td>
+
+        </tr>
+        @foreach (var work in workerManager.ReadAll())
+        {
+            <tr>
+                <td><label>@work.Id</label></td>
+                <td> <input type="text" @bind-value="@work.Name" /></td>
+                <td><input type="text" @bind-value="@work.LastName" /></td>
+                <td><input type="text" @bind-value="@work.PhoneNumber" /></td>
+                <td>
+                    <select @bind="work.TeamId">
+                        <option>Select a team</option>
+                        @foreach (var team in teamManager.ReadAll())
+                        {
+                            <option value="@team.ID">@team.TeamName</option>
+                        }
+                    </select>
+                </td>
+                <td> <label>@work.Role</label></td>
+
+
+                <td><button type="submit" id="@work.Id" @onclick="@(() => DeleteWorker(work.Id))">Delete</button></td>
+
+                <td><button type="submit" id="@work.Id" @onclick="@(() => UpdateWorker(work))">Update</button> </td>
+
+            </tr>
+
+        }
+
+        @foreach (var lead in teamLedManager.ReadAll())
+        {
+            <tr>
+                <td><label>@lead.Id</label></td>
+                <td> <input type="text" @bind-value="@lead.Name" /></td>
+                <td><input type="text" @bind-value="@lead.LastName" /></td>
+                <td><input type="text" @bind-value="@lead.PhoneNumber" /></td>
+                <td> <select @bind="lead.TeamId">
+                        <option>Select a team</option>
+                        @foreach (var team in teamManager.ReadAll())
+                        {
+                            <option value="@team.ID">@team.TeamName</option>
+                        }
+                    </select>
+                </td>
+                <td> <label>@lead.Role</label></td>
+
+
+                <td><button type="submit" id="@lead.Id" @onclick="@(() => DeleteLeader(lead.Id))">Delete</button></td>
+
+                <td><button type="submit" id="@lead.Id" @onclick="@(() => UpdateLeader(lead))">Update</button> </td>
+
+            </tr>
+
+        }
+        @foreach (var ceo in ceoManager.ReadAll())
+        {
+            <tr>
+                <td><label>@ceo.Id</label></td>
+                <td> <input type="text" @bind-value="@ceo.Name" /></td>
+                <td><input type="text" @bind-value="@ceo.LastName" /></td>
+                <td><input type="text" @bind-value="@ceo.PhoneNumber" /></td>
+                <td><input type="text" @bind-value="@ceo.Company"></td>
+                <td> <label>@ceo.Role</label></td>
+
+
+                <td><button type="submit" id="@ceo.Id" @onclick="@(() => DeleteCEO(ceo.Id))">Delete</button></td>
+
+                <td><button type="submit" id="@ceo.Id" @onclick="@(() => UpdateCEO(ceo))">Update</button> </td>
+
+            </tr>
+
+        }
+    </table>
+</center>
+<br />
+<br />
+<br />
+
+@code {
+    private bool teamLedFormHidden { get; set; } = true;
+    private bool ceoFormHidden { get; set; } = true;
+    private bool workerFormHidden { get; set; } = false;
+
+
+    private TeamManager teamManager = new TeamManager(DBContextManager.CreateContext());
+    TeamLeaderManager teamLedManager = new TeamLeaderManager(DBContextManager.CreateContext());
+    CEOManager ceoManager = new CEOManager(DBContextManager.CreateContext());
+    WorkerManager workerManager = new WorkerManager(DBContextManager.CreateContext());
+    private Worker worker = new Worker(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty);
+    int teamID;
+    int rank;
+    string companyname;
+
+
+    private void CreateTeamLeader()
+    {
+        worker.TeamId =teamID;
+        // worker.Team = teamManager.Read(teamID);
+
+        TeamLeader leader = new TeamLeader(worker);
+        teamLedManager.Create(leader);
+        Team teamdb = teamManager.Read(teamID);
+        teamdb.TeamLeader = leader;
+        teamManager.Update(teamdb);
+
+    }
+    private void CreateCEO()
+    {
+        CEO ceo = new CEO(worker, companyname);
+        ceoManager.Create(ceo);
+    }
+    private void CreateWorker()
+    {
+        worker.TeamId = teamID;
+        
+        workerManager.Create(worker);
+        Team teamdb = teamManager.Read(teamID);
+        teamdb.Workers.Add(worker);
+        teamManager.Update(teamdb);
+
+    }
+    //// <summary>
+    /// ////
+    /// </summary>
+
+
+    private string CurrentColor { get; set; } = "black";
+    private string info = "";
+
+
+    private void TeamSubmit()
+    {
+        //tm.Create(team);
+    }
+
+
+    private void DeleteWorker(string id)
+    {
+        workerManager.Delete(id);
+        ChangeColor();
+        info = $"Team Leader with id: {id} DELETED!";
+
+    }
+    private void UpdateWorker(Worker worker)
+    {
+        workerManager.Update(worker);
+        ChangeColor();
+        info = $"TeamLeader with id: {worker.Id} UPDATED!";
+    }
+
+    private void DeleteLeader(string id)
+    {
+        teamLedManager.Delete(id);
+        ChangeColor();
+        info = $"Team Leader with id: {id} DELETED!";
+
+    }
+    private void UpdateLeader(TeamLeader leader)
+    {
+        teamLedManager.Update(leader);
+        ChangeColor();
+        info = $"TeamLeader with id: {leader.Id} UPDATED!";
+    }
+
+    private void DeleteCEO(string id)
+    {
+        ceoManager.Delete(id);
+        ChangeColor();
+        info = $"CEO with id: {id} DELETED!";
+
+    }
+    private void UpdateCEO(CEO ceo)
+    {
+        ceoManager.Update(ceo);
+        ChangeColor();
+        info = $"CEO with id: {ceo.Id} UPDATED!";
+    }
+
+    private void ShowWorkerForm()
+    {
+        workerFormHidden = false;
+        ceoFormHidden = true;
+        teamLedFormHidden = true;
+    }
+    private void ShowCEOForm()
+    {
+        workerFormHidden = true;
+        ceoFormHidden = false;
+        teamLedFormHidden = true;
+    }
+    private void ShowTeamLeaderForm()
+    {
+        workerFormHidden = true;
+        ceoFormHidden = true;
+        teamLedFormHidden = false;
+    }
+    private void ChangeColor()
+    {
+        /*var random = new Random();
+         var color = String.Format("#{0:X6}", random.Next(0x1000000)); // Generate a random 6-digit hex color code.
+         CurrentColor = color;*/
+    }
+}
